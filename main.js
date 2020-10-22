@@ -11,10 +11,10 @@ class Producto {
 class Almacen{
     constructor(){
         this.capacidad = []
+        this.CapacidadMax = 20
     }
-
     agregarProducto(producto){
-        if(this.capacidad.length >= 20){
+        if(this.capacidad.length > this.CapacidadMax){
             return "Almacen lleno"
         }else{
             this.capacidad.push(producto)
@@ -56,30 +56,38 @@ class Almacen{
     }
 
     insertarProducto(producto, posicion){
-        if(this.capacidad.length !== 20){
-            let sigProducto
-            let productoAct = producto
-            
-            for(let i = posicion; i<=this.capacidad.length; i++){
-                sigProducto = this.capacidad[i+1]
-                this.capacidad[i] = productoAct
-                productoAct = sigProducto
+        if(posicion>this.capacidad.length || this.capacidad.length >= this.CapacidadMax){
+            return `${posicion} es un numero muy alto o el almacen está lleno`
+        }else{
+            if(posicion==this.capacidad.length){
+                this.capacidad[posicion] = producto
+                return `${producto.producto} ha sido añadido`
             }
+            let productoAct
+            let sigProducto = producto
+            for(let i = posicion; i<this.capacidad.length; i++){
+                productoAct = this.capacidad[i]
+                this.capacidad[i] = sigProducto
+                sigProducto = productoAct
+            }
+            this.capacidad[this.capacidad.length] = sigProducto
+            return `${producto.producto} ha sido añadido` 
         }
+        
     }
 }
 
 let producto1 = new Producto(1,"Arroz","Arrozito rico", 30, 10)
 let producto2 = new Producto(2,"Pan","Pan rico", 20, 5)
 let producto3 = new Producto(3,"Elote","Elote rico", 25, 8)
-let producto4 = new Producto(3,"Nito","Nito rico", 10, 10)
+let producto4 = new Producto(4,"Nito","Nito rico", 10, 10)
 let almacen = new Almacen()
 almacen.agregarProducto(producto1)
 almacen.agregarProducto(producto2)
 almacen.agregarProducto(producto3)
 console.log()
-almacen.insertarProducto(producto4)
+almacen.insertarProducto(producto4,0)
 almacen.listarProductos()
-almacen.listarProductosInverso()
+almacen.listarProductosInverso
 
 console.log(almacen)
