@@ -92,31 +92,7 @@ class Almacen{
         
     }
 }
-
-let producto1 = new Producto(1,"Arroz","Arrozito rico", 30, 10)
-let producto2 = new Producto(2,"Pan","Pan rico", 20, 5)
-let producto3 = new Producto(3,"Elote","Elote rico", 25, 8)
-let producto4 = new Producto(4,"Nito","Nito rico", 10, 10)
 let almacen = new Almacen()
-almacen.agregarProducto(producto1)
-almacen.agregarProducto(producto1)
-almacen.agregarProducto(producto1)
-almacen.agregarProducto(producto1)
-almacen.agregarProducto(producto1)
-almacen.agregarProducto(producto1)
-almacen.agregarProducto(producto1)
-almacen.agregarProducto(producto1)
-almacen.agregarProducto(producto1)
-almacen.agregarProducto(producto1)
-almacen.agregarProducto(producto1)
-almacen.agregarProducto(producto1)
-almacen.agregarProducto(producto1)
-almacen.agregarProducto(producto1)
-almacen.agregarProducto(producto1)
-almacen.agregarProducto(producto1)
-almacen.agregarProducto(producto2)
-almacen.agregarProducto(producto3)
-
 var btnAnadir = document.querySelector("#btnAnadir")
 btnAnadir.addEventListener('click', () => {
     let codigo = document.querySelector("#codigo").value
@@ -172,4 +148,3 @@ var btnListarInv = document.querySelector("#btnListarInv")
 btnListarInv.addEventListener('click', () => {
     almacen.listarProductosInverso()
 })
-
