@@ -6,6 +6,7 @@ class Producto {
         this.cantidad = cantidad
         this.costo = costo
         this.siguiente = null
+        this.anterior = null
     }
 
     calcularPrecio(){
@@ -19,34 +20,34 @@ class Producto {
 class Almacen{
     constructor(){
         this.capacidad = []
-        this.CapacidadMax = 20
         this.tamano = 0
         this.inicio = null
+        this.final = null
     }
     
 
     agregarProducto(producto){
-        if(this.inicio == null){
+        if(this.final == null){
             this.inicio = producto
+            this.final = producto
         }else{
-            let aux = this.inicio
-            while(aux.siguiente !== null){
-                aux = aux.siguiente
-            }
-            aux.siguiente = producto
+            producto.anterior = this.final
+            this.final.siguiente = producto
+            this.final = producto
         }
         this.tamano++
         return producto.producto
     }
 
     insertarProducto(producto, posicion){
-        if(posicion<0 || this.capacidad.length >= this.tamano){
+        if(posicion<0 || posicion > this.tamano){
             return false
         }else{
             let aux = this.inicio
             let anterior
             if(posicion==0){
                 producto.siguiente = aux
+                aux.anterior = producto
                 this.inicio = producto
             } else{
                 for(let i=0; i<posicion; i++){
@@ -54,58 +55,108 @@ class Almacen{
                     aux = aux.siguiente
                 }
                 producto.siguiente = aux
+                producto.anterior = anterior
                 anterior.siguiente = producto
+                aux.anterior = producto
             }
             this.tamano++
         }
         return producto.producto
     }
-
-    borrarProductoID(idProducto){
-        if(idProducto<0 || idProducto>this.tamano){
+    
+    borrarInicio(){
+        if(this.inicio == null){
             return false
-        }
-        let aux = this.inicio
-        let anterior = null
-
-        if(idProducto == 0){
-            this.head = aux.siguiente
-        } else{
-            for(let i=0; i<idProducto; i++){
-                anterior = aux
-                aux = aux.siguiente
+        }else{
+            let productoX = this.inicio.producto
+            if(this.tamano == 1){
+                this.inicio = null
+                this.final = null
+            }else{
+                this.inicio = this.inicio.siguiente
+                this.inicio.anterior = null
             }
-            anterior.siguiente = aux.siguiente
+            this.tamano--
+            return productoX
         }
-        this.tamano--
-        return aux.producto
+    }
+
+    borrarFinal(){
+        if(this.final == null){
+            return false
+        }else{
+            let productoX = this.final.producto
+            if(this.tamano == 1){
+                this.inicio = null
+                this.final = null
+            }else{
+                this.final = this.final.anterior
+                this.final.siguiente = null
+            }
+            this.tamano--
+            return productoX
+        }
     }
 
     buscarProductoID(idProducto){
-        if(idProducto<0 || idProducto>=this.tamano){
-            return false
-        }
         let aux = this.inicio
         let anterior = null
-
-        if(idProducto == 0){
-            return aux.producto
+        if(idProducto == this.inicio.codigo){
+            return aux
+        } else if(idProducto == this.final.codigo){
+            aux = this.final
+            return aux
         } else{
-            for(let i=0; i<idProducto; i++){
+            while(aux !== null){
+                if(aux.codigo == idProducto){
+                    return aux
+                }
                 anterior = aux
                 aux = aux.siguiente
             }
-            return aux.producto
         }
-        
+        return false
+    }
+
+    borrarProductoID(idProducto){
+        let productoX = this.buscarProductoID(idProducto)
+        let aux = this.inicio
+        let anterior = null
+        if(productoX==this.inicio){
+            this.borrarInicio()
+            return productoX.producto
+        } else if(productoX==this.final){
+            this.borrarFinal()
+            return productoX.producto
+        } else{
+            if(productoX !== false){
+                anterior = productoX.anterior
+                anterior.siguiente = productoX.siguiente
+                productoX.siguiente.anterior = anterior
+                this.tamano--
+                return productoX.producto
+            }
+        }
+        return false
     }
 
     listarProductos(){
         let aux = this.inicio
         let lista = ""
         while(aux){
-            lista += aux.producto += " - "
+            lista += `${aux.producto}, `
             aux = aux.siguiente
+        }
+        lista += "Fin de la lista"
+        return lista
+    }
+
+    listarProductosInverso(){
+        let aux = this.final
+        let lista = ""
+        while(aux){
+            lista += `${aux.producto}, `
+            aux = aux.anterior
         }
         lista += "Fin de la lista"
         return lista
@@ -114,17 +165,7 @@ class Almacen{
 }
 
 let testAlmacen = new Almacen()
-let p1 = new Producto(1334, "sal", "sal de doña pelos", 100, 2)
-let p2 = new Producto(1345, "pimienta", "recien molida", 30, 10)
-let p3 = new Producto(1231, "ribeye", "marmoleo lvl 5", 10, 500)
-let p4 = new Producto(1414, "tbone", "marmoleo lvl 4", 6, 500)
-testAlmacen.agregarProducto(p1)
-testAlmacen.agregarProducto(p2)
-testAlmacen.agregarProducto(p3)
-testAlmacen.insertarProducto(p4,2)
-console.log(testAlmacen.buscarProductoID(2))
-//console.log(testAlmacen.borrarProductoID(1))
-console.log(testAlmacen.listarProductos())
+
 
 
 let almacen = new Almacen()
@@ -136,7 +177,9 @@ btnAnadir.addEventListener('click', () => {
     let cantidad = Number(document.querySelector("#cantidad")).value
     let precio = Number(document.querySelector("#costo")).value
     let producto = new Producto(codigo, nombreProducto, descripcion, cantidad, precio)
-    alert(almacen.agregarProducto(producto) + " ha sido añadido al Almacen")
+    let mensaje = document.querySelector("#mensajeAnadir")
+    let valor = almacen.agregarProducto(producto)
+    mensaje.innerHTML = valor + " ha sido añadido al Almacen"
 })
 
 var btnCalcular = document.querySelector("#btnCalcular")
@@ -147,7 +190,9 @@ btnCalcular.addEventListener('click', () => {
     let cantidad = document.querySelector("#cantidad").value
     let precio = document.querySelector("#costo").value
     let producto = new Producto(codigo, nombreProducto, descripcion, cantidad, precio)
-    alert(producto.calcularPrecio())
+    let mensaje = document.querySelector("#mensajeAnadir")
+    let valor = producto.calcularPrecio()
+    mensaje.innerHTML = valor + "$ es el precio total de " + producto.producto
 })
 
 var btnInsertar = document.querySelector("#btnInsertar")
@@ -159,25 +204,73 @@ btnInsertar.addEventListener('click', () => {
     let precio = document.querySelector("#costo").value
     let posicion = document.querySelector("#posicion").value
     let producto = new Producto(codigo, nombreProducto, descripcion, cantidad, precio)
-    alert(almacen.insertarProducto(producto, posicion))
+    let mensaje = document.querySelector("#mensajeInsertar")
+    let valor = almacen.insertarProducto(producto, posicion)
+    if(valor!=false){
+        mensaje.innerHTML = valor + " se ha insertado correctamente"
+    } else{
+        mensaje.innerHTML = "Puso una posición incorrecta"
+    }
+})
+
+var btnBorrarPrimero = document.querySelector("#btnBorrarPrimero")
+btnBorrarPrimero.addEventListener('click', () => {
+    let mensaje = document.querySelector("#mensajeBorrarPrimero")
+    let valor = almacen.borrarInicio()
+    if(valor !== false){
+        mensaje.innerHTML = "Se ha eliminado " + valor
+    }else{
+        mensaje.innerHTML = "El almacen está vacío"
+    }
 })
 
 var btnBorrar = document.querySelector("#btnBorrar")
 btnBorrar.addEventListener('click', () => {
+    let mensaje = document.querySelector("#mensajeBorrar")
     let codigo = document.querySelector("#codigoBorrar").value
-    alert(almacen.borrarProductoID(codigo))
+    let valor = almacen.borrarProductoID(codigo)
+    if (valor == false){
+        mensaje.innerHTML = "No se econtró el producto"
+    }else{
+        mensaje.innerHTML = "Se ha eliminado " + valor
+    }
 })
 
 var btnBuscar = document.querySelector("#btnBuscar")
 btnBuscar.addEventListener('click', () => {
+    let mensaje = document.querySelector("#mensajeBuscar")
     let codigo = document.querySelector("#codigoBuscar").value
-    alert(almacen.buscarProductoID(codigo))
+    let valor = almacen.buscarProductoID(codigo).producto
+    if (almacen.buscarProductoID(codigo) == false){
+        mensaje.innerHTML = "No se econtró el producto"
+    }else{
+        mensaje.innerHTML = "Se ha encontrado " + valor
+    }
+    
 })
 
 var btnListar = document.querySelector("#btnListar")
 btnListar.addEventListener('click', () => {
-    let lista = document.querySelector("#lista1")
+    let lista1 = document.querySelector("#lista1")
     let nuevoItem = document.createElement('li')
     nuevoItem.textContent = almacen.listarProductos()
-    lista.appendChild(nuevoItem)
+    lista1.appendChild(nuevoItem)
 })
+
+var btnListarInvertido = document.querySelector("#btnListarInv")
+btnListarInvertido.addEventListener('click', () => {
+    let lista2 = document.querySelector("#lista2")
+    let nuevoItem = document.createElement('li')
+    nuevoItem.textContent = almacen.listarProductosInverso()
+    lista2.appendChild(nuevoItem)
+})
+
+let p1 = new Producto(1334, "sal", "sal de doña pelos", 100, 2)
+let p2 = new Producto(1345, "pimienta", "recien molida", 30, 10)
+let p3 = new Producto(1231, "ribeye", "marmoleo lvl 5", 10, 500)
+let p4 = new Producto(1414, "tbone", "marmoleo lvl 4", 6, 500)
+
+almacen.agregarProducto(p1)
+almacen.agregarProducto(p2)
+almacen.agregarProducto(p3)
+almacen.insertarProducto(p4,1)
